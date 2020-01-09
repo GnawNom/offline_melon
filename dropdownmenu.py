@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 import vlc
 
 class MyMenu:
@@ -20,18 +20,27 @@ class MyMenu:
     def PrintMessage(self):
         print("PRINTING")
 
-
-class Toolbar:
-    def __init__(self, master):
-        self.toolbar = Frame(root, bg="blue")
-        self.insertButt = Button(self.toolbar, text="Insert Image", command=self.PrintMessage)
-        self.insertButt.pack(side=LEFT, padx=2, pady=2)
-        self.printButt = Button(self.toolbar, text="Print", command=self.PrintMessage)
-        self.printButt.pack(side=LEFT, padx=2, pady=2)
-        self.toolbar.pack(side=TOP, fill=X)
+class PlayerControls:
+    PLAY_UNICODE="\u25B6"
+    PAUSE_UNICODE="\u23F8"
+    def __init__(self, master, screen):
+        self.screen = screen
+        self.toolbar = tk.Frame(root, bg="blue")
+        self.playPauseButton = tk.Button(self.toolbar, text=PlayerControls.PLAY_UNICODE, command=self.PlayPauseAction)
+        self.playPauseButton.pack(side=tk.LEFT, padx=2, pady=2)
+        self.printButt = tk.Button(self.toolbar, text="Print", command=self.PrintMessage)
+        self.printButt.pack(side=tk.LEFT, padx=2, pady=2)
+        self.toolbar.pack(side=tk.TOP, fill=tk.X)
         
     def PrintMessage(self):
         print("PRINTING")
+
+    def PlayPauseAction(self):
+        status = self.screen.pause_unpause()
+        if status == 0:
+            self.playPauseButton.config(text=PlayerControls.PLAY_UNICODE)
+        else:
+            self.playPauseButton.config(text=PlayerControls.PAUSE_UNICODE)
 
 class StatusBar:
     def __init__(self, master):
@@ -41,12 +50,12 @@ class StatusBar:
     def PrintMessage(self):
         print("PRINTING")
 
-class Screen(Frame):
+class Screen(tk.Frame):
     '''
         Screen widget: Embedded video player from local or youtube
     '''
     def __init__(self, parent, *args, **kwargs):
-        Frame.__init__(self, parent, bg = 'black')
+        tk.Frame.__init__(self, parent, bg = '#8abce6' )
         self.settings = { # Inizialazing dictionary settings
             "width" : 1024,
             "height" : 768
@@ -57,35 +66,53 @@ class Screen(Frame):
         self.video_source = 'I:\DOWNLOAD\[Erai-raws] Boku no Hero Academia 4th Season - 10 [1080p][Multiple Subtitle]\[Erai-raws] Boku no Hero Academia 4th Season - 10 [1080p][Multiple Subtitle].mkv' 
 
         # Canvas where to draw video output
-        self.canvas = Canvas(self, width = self.settings['width'], height = self.settings['height'], bg = "black", highlightthickness = 0)
+        self.canvas = tk.Canvas(self, width = self.settings['width'], height = self.settings['height'], bg = "black", highlightthickness = 0)
         self.canvas.pack()
 
         # Creating VLC player
         self.instance = vlc.Instance()
         self.player = self.instance.media_player_new()
-        self.pack()
+        self.pack(fill=tk.X)
 
 
     def GetHandle(self):
         # Getting frame ID
         return self.winfo_id()
 
+    def Resize(self, width, height):
+        self.canvas.configure(width=width, height=height)
+
     def play(self, _source):
         # Function to start player from given source
         Media = self.instance.media_new(_source)
         Media.get_mrl()
         self.player.set_media(Media)
+        
 
-        #self.player.play()
         self.player.set_hwnd(self.GetHandle())
         self.player.play()
+        # w,h = self.player.video_get_size()
+        # print(w,h)
 
-root = Tk()
+    def printSize(self):
+        print(self.player.video_get_size())
+
+    def pause_unpause(self):
+        if self.player.is_playing():
+            self.player.pause()
+            return 0
+        else:
+            self.player.play()
+            return 1
+
+root = tk.Tk()
 
 # MyMenu(root)
 # Toolbar(root)
 # StatusBar(root)
 screen = Screen(root)
+controls = PlayerControls(root, screen)
 screen.play(screen.video_source)
+# screen.printSize
 
 root.mainloop()
