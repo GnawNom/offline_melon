@@ -1,0 +1,29 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "4a905a42dc0f0d61951fcfb7c41294871279abd222fd9040a1ef57936e5f08e9"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "python-vlc": {
+            "hashes": [
+                "sha256:821bca0dbe08fbff97a65e56ff2318ad7d499330876579c39f01f3fb38c7b679",
+                "sha256:f62987571cf3d58adfc5b2c0adab679f96dcce76e8096d14cc56abd4c3d3527b"
+            ],
+            "index": "pypi",
+            "version": "==3.0.7110"
+        }
+    },
+    "develop": {}
+}
