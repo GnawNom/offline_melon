@@ -5,6 +5,7 @@ from tkinter.filedialog import askopenfilename
 import pathlib
 import os
 import vlc
+import time
 
 PLAY_UNICODE="\u25B6"
 PAUSE_UNICODE="\u23F8"
@@ -54,10 +55,55 @@ class Screen(tk.Frame):
         self.instance = vlc.Instance()
         self.player = self.instance.media_player_new()
 
+
+        # Create slider
+        timers = ttk.Frame(self.tkRoot)
+        self.timeVar = tk.DoubleVar()
+        self.timeSliderLastVal = 0
+        self.timeSlider = tk.Scale(timers, variable=self.timeVar, command=self.onTime, from_=0, to=1000,
+                                    orient=tk.HORIZONTAL, length=500, showvalue=0)
+        self.timeSlider.pack(side=tk.LEFT, fill=tk.X, expand=1)
+        self.timeSliderUpdated = time.time()
+        self.timerText = tk.Label(timers, text="0:00/0:00")
+        self.timerText.pack(side=tk.LEFT, fill=tk.X)
+        timers.pack(side=tk.BOTTOM, fill=tk.X)
+
         
         # create control panel
         self.createControlPanel()
         self.initKeyBinds()
+
+        # setup timer task
+        self.onTick()
+
+    def onTime(self, e):
+        if self.player:
+            t = self.timeVar.get()
+            if self.timeSliderLastVal != int(t):
+                self.player.set_time(int(t * 1e3)) # ms
+                self.timeSliderUpdated = time.time()
+
+    def updateTimeText(self, t, length):
+        t_str = "%d:%s" % (t//60, str(int(t%60)).zfill(2))
+        length_str = "%d:%s" % (length//60, str(int(length%60)).zfill(2))
+        self.timerText.config(text="%s/%s" % (t_str, length_str))
+
+    def onTick(self):
+        """ Update slider position
+        """
+        if self.player:
+            # adjust length in case it's changed (e.g. changed media file)
+            length = self.player.get_length() * 1e-3 # seconds
+            if length > 0:
+                self.timeSlider.config(to=length)
+
+            t = self.player.get_time() * 1e-3 # seconds
+            if t > 0 and time.time() > (self.timeSliderUpdated + 2):
+                self.timeSlider.set(t)
+                self.updateTimeText(t, length)
+                self.timeSliderLastVal = int(self.timeVar.get())
+        # repeat every second
+        self.tkRoot.after(1000, self.onTick)
 
     def createFileMenu(self):
         """Create file menu."""
