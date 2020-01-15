@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter.font import Font
 from tkinter.filedialog import askopenfilename
 import pathlib
@@ -66,7 +67,7 @@ class Screen(tk.Frame):
         self.menubar.add_cascade(label="File", menu=self.file_menu)
 
     def createControlPanel(self):
-        toolbar = tk.Frame(self.tkRoot, bg="blue")
+        controlPanel = tk.Frame(self.tkRoot, bg="blue")
         def playPause():
             if not self.player.get_media():
                 self.open()
@@ -82,13 +83,16 @@ class Screen(tk.Frame):
         def decreaseRate():
             self.player.set_rate(max(MIN_PLAY_RATE, self.player.get_rate()/2))
             
-        playPauseButton = tk.Button(toolbar, text=PLAY_UNICODE, command=playPause)
+        playPauseButton = tk.Button(controlPanel, text=PLAY_UNICODE, command=playPause)
         playPauseButton.pack(side=tk.LEFT, padx=4, pady=4)
-        fastForwardButton = tk.Button(toolbar, text=FAST_FORWARD_UNICODE, command=increaseRate)
-        decreaseRateButton = tk.Button(toolbar, text=REWIND_UNICODE, command=decreaseRate)
-        decreaseRateButton.pack(side=tk.LEFT, padx=2, pady=2)
-        fastForwardButton.pack(side=tk.LEFT, padx=2, pady=2)
-        toolbar.pack(side=tk.TOP, fill=tk.X)
+        sep = ttk.Separator(controlPanel)
+        sep.pack(side="left", fill="y", padx=4, pady=4)
+
+        fastForwardButton = tk.Button(controlPanel, text=FAST_FORWARD_UNICODE, command=increaseRate)
+        decreaseRateButton = tk.Button(controlPanel, text=REWIND_UNICODE, command=decreaseRate)
+        decreaseRateButton.pack(side=tk.LEFT, padx=4, pady=4)
+        fastForwardButton.pack(side=tk.LEFT, padx=4, pady=4)
+        controlPanel.pack(side=tk.TOP, fill=tk.X)
     
     def initKeyBinds(self):
         self.tkRoot.bind("<space>", lambda e: self.pause_unpause())
