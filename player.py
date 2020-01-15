@@ -7,6 +7,10 @@ import vlc
 
 PLAY_UNICODE="\u25B6"
 PAUSE_UNICODE="\u23F8"
+FAST_FORWARD_UNICODE="\u23E9"
+REWIND_UNICODE="\u23EA"
+MAX_PLAY_RATE=4.0
+MIN_PLAY_RATE=0.25
 
 class Screen(tk.Frame):
     '''
@@ -38,7 +42,6 @@ class Screen(tk.Frame):
         self.createFileMenu()
 
         self.tkRoot.config(menu=self.menubar)
-
 
         # Canvas where to draw video output
         self.video_panel = tk.Frame(self.tkRoot)
@@ -73,12 +76,18 @@ class Screen(tk.Frame):
                     playPauseButton.config(text=PLAY_UNICODE)
                 else:
                     playPauseButton.config(text=PAUSE_UNICODE)
+        def increaseRate():
+            self.player.set_rate(min(MAX_PLAY_RATE, self.player.get_rate()*2))
+
+        def decreaseRate():
+            self.player.set_rate(max(MIN_PLAY_RATE, self.player.get_rate()/2))
             
         playPauseButton = tk.Button(toolbar, text=PLAY_UNICODE, command=playPause)
-        playPauseButton.pack(side=tk.LEFT, padx=2, pady=2)
-
-        # fastForwardButton = tk.Button(self.tool)
-        # rewindButton = tk.Button()
+        playPauseButton.pack(side=tk.LEFT, padx=4, pady=4)
+        fastForwardButton = tk.Button(toolbar, text=FAST_FORWARD_UNICODE, command=increaseRate)
+        decreaseRateButton = tk.Button(toolbar, text=REWIND_UNICODE, command=decreaseRate)
+        decreaseRateButton.pack(side=tk.LEFT, padx=2, pady=2)
+        fastForwardButton.pack(side=tk.LEFT, padx=2, pady=2)
         toolbar.pack(side=tk.TOP, fill=tk.X)
     
     def initKeyBinds(self):
@@ -132,11 +141,7 @@ class Screen(tk.Frame):
 
 root = tk.Tk()
 
-# MyMenu(root)
-# Toolbar(root)
-# StatusBar(root)
 screen = Screen(root)
 # screen.play(screen.video_source)
-# screen.printSize
 
 root.mainloop()
