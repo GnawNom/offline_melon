@@ -7,6 +7,8 @@ import os
 import vlc
 import time
 
+from subtitles import Subtitles
+
 PLAY_UNICODE="\u25B6"
 PAUSE_UNICODE="\u23F8"
 FAST_FORWARD_UNICODE="\u23E9"
@@ -20,7 +22,8 @@ class Screen(tk.Frame):
     '''
     def __init__(self, tkRoot, *args, **kwargs):
         tk.Frame.__init__(self, tkRoot)
-
+        self.lastUpdatedSubTime = -1
+        self.subs = None
         self.initialDirectory = pathlib.Path(os.path.expanduser("~"))
         self.menuFont = Font(family="Verdana", size=20)
         self.defaultFont = Font(family="Times New Roman", size=16)
@@ -82,6 +85,7 @@ class Screen(tk.Frame):
             if self.timeSliderLastVal != int(t):
                 self.player.set_time(int(t * 1e3)) # ms
                 self.timeSliderUpdated = time.time()
+                self.updateSubs(int(t*1e3))
 
     def updateTimeText(self, t, length):
         t_str = "%d:%s" % (t//60, str(int(t%60)).zfill(2))
@@ -89,7 +93,7 @@ class Screen(tk.Frame):
         self.timerText.config(text="%s/%s" % (t_str, length_str))
 
     def onTick(self):
-        """ Update slider position
+        """ Update slider position, time display, subtitles
         """
         if self.player:
             # adjust length in case it's changed (e.g. changed media file)
@@ -99,15 +103,28 @@ class Screen(tk.Frame):
 
             t = self.player.get_time() * 1e-3 # seconds
             if t > 0 and time.time() > (self.timeSliderUpdated + 2):
-                self.timeSlider.set(t)
+                # Set the variable instead of the slider, calling set on the slider will trigger the onTime callback
+                # causing stuttering
+                self.timeVar.set(t)
                 self.updateTimeText(t, length)
-                self.timeSliderLastVal = int(self.timeVar.get())
+                self.timeSliderLastVal = int(self.timeVar.get() * 1e3)
+                self.updateSubs(self.player.get_time())
         # repeat every second
         self.tkRoot.after(1000, self.onTick)
+
+    def updateSubs(self,time):
+        if self.lastUpdatedSubTime != time:
+            if self.subs:
+                sub, index = self.subs.nextSubtitleAt(time)
+                self.lastUpdatedSubTime = time
+                if sub:
+                    print(sub)
+                # print(sub, index)
 
     def createFileMenu(self):
         """Create file menu."""
         self.file_menu.add_command(label="Open", command=self.open, font=self.defaultFont, accelerator="ctrl + o")
+        self.file_menu.add_command(label="Load Subtitles", command=self.openSubs, font=self.defaultFont)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Quit", command=self.close, font=("Verdana", 14, "bold"), accelerator="ctrl + q")
         self.menubar.add_cascade(label="File", menu=self.file_menu)
@@ -159,6 +176,18 @@ class Screen(tk.Frame):
         if os.path.isfile(file):
             self.play(file)
 
+    def openSubs(self):
+        """New window allowing user to select a subtitle."""
+        file = askopenfilename(initialdir=self.initialDirectory)
+
+        print(file)
+        print(isinstance(file,tuple))
+        print(os.path.isfile(file))
+        if isinstance(file, tuple):
+            return
+        if os.path.isfile(file):
+            self.subs = Subtitles(file)
+
     def play(self, _source):
         # Function to start player from given source
         Media = self.instance.media_new(_source)
@@ -188,7 +217,6 @@ class Screen(tk.Frame):
         os._exit(1)
 
  
-
 root = tk.Tk()
 
 screen = Screen(root)

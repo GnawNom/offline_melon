@@ -8,6 +8,8 @@ rope = "*"
 
 [packages]
 python-vlc = "*"
+pysubs2 = "*"
+tinysegmenter3 = "*"
 
 [requires]
 python_version = "3.7"

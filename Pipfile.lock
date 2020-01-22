@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b091e291bb7c6b3eb8e13f2b88fcc9ac769cb01bcf8b4ab6280da047c647d571"
+            "sha256": "adefae734e1bd87172851c1785baae52bf4aba59aaf42383e757cf8be7f29f64"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,14 @@
         ]
     },
     "default": {
+        "pysubs2": {
+            "hashes": [
+                "sha256:07f9bb5da0efe8238b88c9ee35cc42ad8c6a3ffc2e4bf8f3bff6d463d02a4b6f",
+                "sha256:dc079dc323c8cf886fd604b8f80b464a70b8511f431979db4a93da36dbb9d697"
+            ],
+            "index": "pypi",
+            "version": "==0.2.4"
+        },
         "python-vlc": {
             "hashes": [
                 "sha256:821bca0dbe08fbff97a65e56ff2318ad7d499330876579c39f01f3fb38c7b679",
@@ -23,6 +31,14 @@
             ],
             "index": "pypi",
             "version": "==3.0.7110"
+        },
+        "tinysegmenter3": {
+            "hashes": [
+                "sha256:56afb1c899dc419cc0570ed16166fca205e0fcbd811ca53e132023fe77682eea",
+                "sha256:704703302fbf95d270791506d0d37d3088e09f58c822aff69497d5415bce6e62"
+            ],
+            "index": "pypi",
+            "version": "==0.1.0"
         }
     },
     "develop": {
